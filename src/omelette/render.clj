@@ -1,30 +1,29 @@
 (ns omelette.render
-  (require [clojure.java.io :as io]
-           [omelette.route :as route])
+  (:require [clojure.java.io :as io]
+            [hiccup.page :refer [html5]])
   (:import [javax.script
             Invocable
             ScriptEngineManager]))
 
-(let [js (doto (.getEngineByName (ScriptEngineManager.) "nashorn")
-           ; React requires either "window" or "global" to be defined.
-           (.eval "var global = this")
-           ; Rendering to string errors with some components in 0.9.0.
-           ; Om is waiting for 0.11.0, though I don't know why.
-           (.eval ^String (slurp "http://cdnjs.cloudflare.com/ajax/libs/react/0.10.0/react.min.js"))
-           (.eval (-> "public/assets/scripts/main.js" io/resource io/reader))
-           ; Is there a way to eval it without using closure compiler optimizations?
-           ; The compile speed is pretty slow on whitespace, about 6-10 seconds
-           )
-      view (.eval js "omelette.view")]
-  (defn edn->html [edn]
-    (.invokeMethod ^Invocable js view "render_to_string" (-> edn list object-array))))
+(defn renderer []
+  (let [js (doto (.getEngineByName (ScriptEngineManager.) "nashorn")
+             (.eval "var global = this") ; React requires either "window" or "global" to be defined.
+             (.eval (-> "public/assets/scripts/main.js" io/resource io/reader)))
+        view (.eval js "omelette.view")]
+    (fn render
+      [title state-edn]
+      (html5
+       [:head
+        [:meta {:charset "utf-8"}]
+        [:meta {:http-equiv "X-UA-Compatible" :content "IE=edge,chrome=1"}]
+        [:meta {:name "viewport" :content "width=device-width"}]
+        [:title (str title " | Omelette")]]
+       [:body
+        [:noscript "If you're seeing this then you're probably a search engine."]
+        [:div#omelette-app (.invokeMethod ^Invocable js view "render_to_string" (-> state-edn list object-array))]
+        [:script {:type "text/javascript" :src "/assets/scripts/main.js"}]
+        [:script#omelette-state {:type "application/edn"} state-edn]
+        [:script {:type "text/javascript"} "omelette.view.init('omelette-state')"]
+        ]))))
 
-(defn response [req]
-  (let [state (route/handler {:event (-> req :uri route/path->state), :ring-req req})
-        state-edn (pr-str state)]
-    {:status (if (-> state first name (= "not-found"))
-               404
-               200)
-     :title (route/state->title state)
-     :body (edn->html state-edn)
-     :state state-edn}))
+;; ((renderer) "foo" (pr-str [:omelette.page/not-found {}]))
