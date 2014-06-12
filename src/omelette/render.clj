@@ -1,17 +1,30 @@
 (ns omelette.render
   (:require [clojure.java.io :as io]
-            [hiccup.page :refer [html5]])
+            [hiccup.page :refer [html5 include-css include-js]])
   (:import [javax.script
             Invocable
             ScriptEngineManager]))
 
-(defn renderer []
+(defn render-fn
+  "Returns a function to render fully-formed HTML.
+  (fn render [title app-state-edn])"
+  []
   (let [js (doto (.getEngineByName (ScriptEngineManager.) "nashorn")
-             (.eval "var global = this") ; React requires either "window" or "global" to be defined.
-             (.eval (-> "public/assets/scripts/main.js" io/resource io/reader)))
-        view (.eval js "omelette.view")]
-    (fn render
-      [title state-edn]
+             ; React requires either "window" or "global" to be defined.
+             (.eval "var global = this")
+             (.eval (-> "public/assets/scripts/main.js"
+                        io/resource
+                        io/reader)))
+        view (.eval js "omelette.view")
+        render-to-string (fn [edn]
+                           (.invokeMethod
+                            ^Invocable js
+                            view
+                            "render_to_string"
+                            (-> edn
+                                list
+                                object-array)))]
+    (fn render [title state-edn]
       (html5
        [:head
         [:meta {:charset "utf-8"}]
@@ -20,10 +33,11 @@
         [:title (str title " | Omelette")]]
        [:body
         [:noscript "If you're seeing this then you're probably a search engine."]
-        [:div#omelette-app (.invokeMethod ^Invocable js view "render_to_string" (-> state-edn list object-array))]
-        [:script {:type "text/javascript" :src "/assets/scripts/main.js"}]
+        (include-css "//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.1.1/css/bootstrap.css")
+        (include-js "/assets/scripts/main.js")
+        ; Render view to HTML string and insert it where React will mount.
+        [:div#omelette-app (render-to-string state-edn)]
+        ; Serialize app state so client can initialize without making an additional request.
         [:script#omelette-state {:type "application/edn"} state-edn]
-        [:script {:type "text/javascript"} "omelette.view.init('omelette-state')"]
-        ]))))
-
-;; ((renderer) "foo" (pr-str [:omelette.page/not-found {}]))
+        ; Initialize client and pass in IDs of the app HTML and app EDN elements.
+        [:script {:type "text/javascript"} "omelette.view.init('omelette-app', 'omelette-state')"]]))))
