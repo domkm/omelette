@@ -21,8 +21,16 @@
          (str/join "|")
          re-pattern)))
 
-(defn search [query options]
-  (filter #(re-find (compile-re query options) %) words))
+(defn search
+  "Takes a string and set.
+  Set can `:prefix`, `:infix`, and `:postfix`.
+  Returns words that have string in any of the positions specified in options."
+  [query options]
+  (->> words
+       (filter #(re-find (compile-re query options) %))
+       (take 500)))
 
-(def about
+(defn about
+  "Returns raw markdown for the \"About\" page."
+  []
   (-> "about.md" io/resource slurp))
