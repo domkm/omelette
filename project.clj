@@ -1,6 +1,6 @@
 (defproject omelette "0.0.0"
 
-  :description "Example of mirrored server/client rendering and routing using Om, Sente, and the Nashorn JavaScript engine."
+  :description "Example of mirrored server/client rendering and routing using React/Om, Sente, and the Nashorn JavaScript engine."
 
   :license {:name "Eclipse Public License"
             :url  "http://www.eclipse.org/legal/epl-v10.html"
@@ -28,12 +28,11 @@
                  [org.clojure/clojurescript "0.0-2227"]
                  [org.clojure/core.async "0.1.298.0-2a82a1-alpha"]
                  [org.clojure/core.match "0.2.1"]
-                 [org.clojure/tools.namespace "0.2.4"]
                  [ring "1.3.0"]
                  [ring/ring-anti-forgery "0.3.2"]
                  [sablono "0.2.17"]]
 
-  :plugins [[com.keminglabs/cljx "0.3.2"]
+  :plugins [[com.keminglabs/cljx "0.4.0"]
             [lein-cljsbuild "1.0.3"]
             [lein-pdo "0.1.1"]]
 
@@ -48,12 +47,15 @@
                                    :output-to "target/resources/public/assets/scripts/main.js"
                                    :output-dir "target/resources/public/assets/scripts"
                                    :source-map "target/resources/public/assets/scripts/main.js.map"
-;;                                    :source-map-path "assets/scripts/out"
                                    :optimizations :whitespace}
                         :notify-command ["terminal-notifier" "-message"]}]}
 
-  :aliases {"build-once" ["do" "clean," "cljx" "once," "cljsbuild" "once"]
-            "build-auto" ["do" "clean"
+  :profiles {:dev {:dependencies [[org.clojure/tools.namespace "0.2.4"]]
+                   :source-paths ["dev"]}
+             :build {}}
+
+  :aliases {"build-auto" ["with-profile" "build"
+                          "do" "clean"
                           ["cljx" "once"]
                           ["pdo"
                            "cljx" "auto,"
