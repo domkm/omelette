@@ -42,28 +42,23 @@
                   {:source-paths ["src"],  :output-path "target/src",  :rules :cljs}]}
 
   :cljsbuild {:builds [{:source-paths ["src" "target/src"]
-                        :compiler {
-                                   :preamble ["react/react.min.js"]
+                        :compiler {:preamble ["react/react.min.js"]
                                    :output-to "target/resources/public/assets/scripts/main.js"
                                    :output-dir "target/resources/public/assets/scripts"
                                    :source-map "target/resources/public/assets/scripts/main.js.map"
-                                   :optimizations :whitespace}
-                        :notify-command ["terminal-notifier" "-message"]}]}
+                                   :optimizations :whitespace}}]}
 
   :profiles {:dev {:dependencies [[org.clojure/tools.namespace "0.2.4"]]
                    :source-paths ["dev"]}
              :build {}}
 
-  :aliases {"build-auto" ["with-profile" "build"
-                          "do" "clean"
-                          ["cljx" "once"]
+  :aliases {"demo" ["with-profile" "build"
+                    "do" "clean,"
+                    "cljx" "once,"
+                    "run"]
+            "build-auto" ["with-profile" "build"
+                          "do" "clean,"
+                          "cljx" "once,"
                           ["pdo"
                            "cljx" "auto,"
-                           "cljsbuild" "auto"]]
-            "run-dev" ["do" "clean"
-                       ["cljx" "once"]
-                       ["cljsbuild" "once"]
-                       ["pdo"
-                        "cljx" "auto,"
-                        "cljsbuild" "auto,"
-                        "run"]]})
+                           "cljsbuild" "auto"]]})
