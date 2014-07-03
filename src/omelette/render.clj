@@ -5,10 +5,7 @@
             Invocable
             ScriptEngineManager]))
 
-(defn render-fn
-  "Returns a function to render fully-formed HTML.
-  (fn render [title app-state-edn])"
-  []
+(defn- render-fn* []
   (let [js (doto (.getEngineByName (ScriptEngineManager.) "nashorn")
              ; React requires either "window" or "global" to be defined.
              (.eval "var global = this")
@@ -43,3 +40,18 @@
         [:script#omelette-state {:type "application/edn"} state-edn]
         ; Initialize client and pass in IDs of the app HTML and app EDN elements.
         [:script {:type "text/javascript"} "omelette.view.init('omelette-app', 'omelette-state')"]]))))
+
+(defn render-fn
+  "Returns a function to render fully-formed HTML.
+  (fn render [title app-state-edn])"
+  []
+  (let [pool (ref (repeatedly 3 render-fn*))]
+    (fn render [title state-edn]
+      (let [rendr (dosync
+                   (let [f (first @pool)]
+                     (alter pool rest)
+                     f))
+            rendr (or rendr (render-fn*))
+            html (rendr title state-edn)]
+        (dosync (alter pool conj rendr))
+        html))))
