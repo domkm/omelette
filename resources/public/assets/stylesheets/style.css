@@ -1,0 +1,60 @@
+*{
+  font-family: 'Open Sans', sans-serif;
+}
+
+body{
+  background: #F6F6F6;
+}
+
+h1{
+  margin-bottom: 1em;
+}
+
+img{
+  max-width: 100%;
+  margin-bottom: 1em;
+}
+
+.row{
+  margin-left: 5%;
+  margin-bottom: 5%;
+}
+
+.left{
+  border-radius: 3px 3px 0 0;
+  box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.08);
+  background: white;
+}
+
+.right{
+  border-radius: 3px 3px 0 0;
+  box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.08);
+  background: white;
+}
+
+#query{
+  border-radius: 3px;
+}
+
+.search-options div{
+  display: inline-block;
+  margin-right: 2em;
+  margin-top: 2em;
+}
+
+.search-options label{
+  padding-left: 0.5em;
+}
+
+.search-results{
+  margin-top: 2em;
+}
+
+.search-results ul{
+  padding: 0;
+  list-style: none;
+}
+
+.search-results li:nth-child(odd){
+  background-color: #e7e7e7;
+}

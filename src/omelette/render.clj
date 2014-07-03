@@ -34,6 +34,8 @@
        [:body
         [:noscript "If you're seeing this then you're probably a search engine."]
         (include-css "//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.1.1/css/bootstrap.css")
+        (include-css "//fonts.googleapis.com/css?family=Open+Sans:300")
+        (include-css "/assets/stylesheets/style.css")
         (include-js "/assets/scripts/main.js")
         ; Render view to HTML string and insert it where React will mount.
         [:div#omelette-app (render-to-string state-edn)]
