@@ -89,9 +89,9 @@
   "Takes search page data map.
   Returns a string describing the search."
   [{:keys [query options]}]
-  (let [opt-pairs {:prefix "starts with"
-                   :infix "includes"
-                   :postfix "ends with"}
+  (let [opt-pairs {:prefix "start with"
+                   :infix "include"
+                   :postfix "end with"}
         [a b c :as opts] (->> (keys opt-pairs)
                               (map (comp opt-pairs options))
                               (remove nil?))
