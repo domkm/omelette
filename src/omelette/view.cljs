@@ -17,7 +17,7 @@
   (set-print-fn! js/print))
 
 (defn- search-view-query [owner query]
-  [:div
+  [:div.search-query
    {:on-change #(->> (-> %
                          .-target
                          .-value
@@ -27,7 +27,7 @@
    (html/search-field "query" query)])
 
 (defn- search-view-options [owner options]
-  [:div
+  [:div.search-options
    (for [[option label] {:prefix "starts with"
                          :infix "includes"
                          :postfix "ends with"}
@@ -68,7 +68,7 @@
        [:form {:on-submit #(.preventDefault %)}
         (search-view-query owner query)
         (search-view-options owner options)]
-       [:div
+       [:div.search-results
         (if-let [results (:results data)]
           (if (seq results)
             (html/unordered-list results)
@@ -117,15 +117,16 @@
     [:div.container-fluid
      (app-view-nav data owner)
      [:div.row
-      [:div.col-xs-6
+      [:div.col-xs-5.left
        [:h1 (route/state->title data)]
        (om/build route/router
                  data
                  {:opts {:page-views {"about" about-view
                                       "search" search-view
                                       "not-found" not-found-view}}})]
-      [:div.col-xs-6
-       [:h2 "App State"]
+      [:div.col-xs-1]
+      [:div.col-xs-5.right
+       [:h1 "App State"]
        (om/build ankha/inspector data)]]])))
 
 (declare app-container
