@@ -28,7 +28,7 @@
   [query options]
   (->> words
        (filter #(re-find (compile-re query options) %))
-       (take 500)))
+       (take 42)))
 
 (defn about
   "Returns raw markdown for the \"About\" page."
